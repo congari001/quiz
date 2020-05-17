@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h2>３連続で正解しよう！</h2>
+        <div id="score"></div>
+        <div>
+            <span id="quiz"></span>
+            <input id="ans" type="text"/>
+            <button id="send" onclick="check();">回答する</button>
+        </div>
+        <div id="result"></div>
+        <script>
+            // プレイヤーデータ
+            let status = {
+                quiz: null,
+                ans: null,
+                score: 0,
+                scene: "START", // START , ANSWER , RESULT , END
+            };
+            // 表示系の処理
+            function setScore(msg) {
+                document.getElementById("score").innerHTML = msg;
+            }
+            function setQuiz() {
+                let newQuiz = createQuiz();
+                status.quiz = newQuiz.quiz;
+                status.ans = newQuiz.ans;
+                document.getElementById("ans").value = "";
+                document.getElementById("quiz").innerHTML = status.quiz;
+            }
+            function setResult(msg) {
+                document.getElementById("result").innerHTML = msg;
+            }
+            // なんか便利そうな関数群
+            function initStatus() {
+                status.quiz = null;
+                status.ans = null;
+                status.score = 0;
+                status.scene = "START";
+            }
+            function createQuiz() {
+                let x = parseInt(Math.random() * 10);
+                let y = parseInt(Math.random() * 10);
+                return {quiz: x+" + "+ y+" = ", ans: x+y};
+            }
+            function isClear() {
+                return status.score === 3;
+            }
+            // ゲームの進行状態の処理
+            function start() {
+                initStatus();
+                status.scene = "ANSWER";
+                setScore("算数ドリル始め！");
+                setQuiz();
+                setResult("");
+            }
+            function next() {
+                status.scene = "ANSWER";
+                setScore(status.score + " 連続正解中！");
+                setQuiz();
+                setResult("");
+            }
+            function check() {
+                if (status.scene !== "ANSWER") {
+                    console.log("ゲームの進行状態が "+status.scene+" だから今は回答できないよ");
+                    return;
+                }
+                status.scene = "RESULT";
+                let func = null;
+                let ans = document.getElementById("ans").value;
+                if (parseInt(ans) === status.ans) {
+                    setResult("正解！！");
+                    status.score++;
+                    func = isClear() ? end: next;
+                }else{
+                    setResult("残念・・・");
+                    func = end;
+                }
+                setTimeout(func, 1200);
+            }
+            function end() {
+                status.scene = "END";
+                setScore("あなたの成績は "+status.score+" 連続正解です");
+                if (isClear()) {
+                    setResult("たいへんよくできました！完璧ですね！");
+                }else{
+                    setResult("もう少しお勉強しましょう");
+                }
+                setTimeout(start, 3000);
+            }
+            // ゲーム開始
+            start();
+        </script>
+    </body>
+</html>
